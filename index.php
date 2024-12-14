@@ -76,10 +76,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </nav>
     <div class="bottom-navbar"></div>
 
-    <!-- Updated Login Form Container -->
     <div class="login-container">
         <div class="login wrap">
-            <div class="h1">QR-UCS</div>
+            <!-- Perpetual Logo Header -->
+            <div class="logo-header">
+                <img src="images/perpetualicon.png" alt="University Logo">
+            </div>
 
             <!-- Add the form action to POST data to this same page -->
             <form action="" method="POST">

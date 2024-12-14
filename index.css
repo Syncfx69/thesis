@@ -146,3 +146,14 @@ body::before {
         padding: 15px;
     }
 }
+/* Styling for the logo header */
+.logo-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-header img {
+    width: 200px; /* Adjust as needed */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 50%; /* Optional: make it circular */
+}
