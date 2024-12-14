@@ -242,26 +242,25 @@ $result = $statement->fetchAll();
     </div>
     <script src="./instascan.min.js"></script>\
     <!-- Fetch and Render Chart -->
-    <script>
-async function fetchData() {
+    <script>async function fetchData() {
     try {
-        const response = await fetch('./Admin_count.php');
+        const response = await fetch('./Admin_count.php'); // Ensure path is correct
         const count = await response.json();
-        const total = count.signed + count.notSigned;
+        const total = count.signed + count.pending; // Use 'pending' instead of 'notSigned'
         const signedPercent = (count.signed / total) * 100;
-        const notSignedPercent = (count.notSigned / total) * 100;
+        const pendingPercent = (count.pending / total) * 100; // Update variable name
 
         const chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
             data: [{
-                type: "doughnut", // Change to doughnut for the circle in the middle
+                type: "doughnut", // Use doughnut for the circular chart
                 startAngle: 240,
-                innerRadius: "50%", // Adds a small white circle in the middle
+                innerRadius: "50%", // Adds a white circle in the middle
                 yValueFormatString: "##0.00\"%\"",
                 indexLabel: "{label} {y}",
                 dataPoints: [
                     { y: signedPercent, label: "Signed", color: "#800000" }, // Maroon
-                    { y: notSignedPercent, label: "Not Signed", color: "#FFD700" } // Gold
+                    { y: pendingPercent, label: "Pending", color: "#FFD700" } // Gold
                 ]
             }]
         });

@@ -4,34 +4,39 @@ session_start(); // Start the session to use session variables
 
 $cpid = 1;
 
-$statement = $pdo->prepare('SELECT DISTINCT student_id, deptstatus FROM clearance_Details WHERE Cpid = ?');
+// Fetch clearance details for the given Cpid
+$statement = $pdo->prepare('SELECT DISTINCT student_id, status FROM clearance WHERE Cpid = ?');
 $statement->execute([$cpid]);
 $clearances = $statement->fetchAll();
 
 $students = [];
 
-foreach($clearances as $clearance) {
+// Process clearance statuses
+foreach ($clearances as $clearance) {
     $id = $clearance['student_id'];
-    $deptstatus = $clearance['deptstatus'];
+    $status = $clearance['status'];
     if (empty($students[$id])) {
-        $students[$id] = $deptstatus == 'Signed';
-    } else if ($students[$id] == true && $deptstatus != 'Signed') {
-        $students[$id] =  $deptstatus == 'Signed';
+        $students[$id] = $status === 'Signed';
+    } else if ($students[$id] === true && $status !== 'Signed') {
+        $students[$id] = $status === 'Signed';
     }
 }
-$signedCount = 0;
-$notSignedCount = 0;
 
+$signedCount = 2;
+$pendingCount = 0;
+
+// Count signed and pending statuses
 foreach ($students as $signed) {
     if ($signed) {
         $signedCount++;
     } else {
-        $notSignedCount += 1;
+        $pendingCount++;
     }
 }
 
+// Output JSON for use in dashboards or APIs
 header('Content-Type: application/json');
 echo json_encode([
     'signed' => (int)$signedCount,
-    'notSigned' => (int)$notSignedCount,
+    'pending' => (int)$pendingCount,
 ]);
