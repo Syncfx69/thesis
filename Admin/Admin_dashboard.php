@@ -103,7 +103,7 @@ $result = $statement->fetchAll();
 <body>
 <div class="sidebar">
     <!-- Add the logo -->
-    <img src="images/perpetualsmallicon.png" alt="Perpetual Logo" class="logo-image">
+    <img src="images/perpetualsmallicon.png" alt="icon" class="navbar-icon">
 
     <ul>
         <li>
@@ -242,25 +242,26 @@ $result = $statement->fetchAll();
     </div>
     <script src="./instascan.min.js"></script>\
     <!-- Fetch and Render Chart -->
-    <script>async function fetchData() {
+    <script>
+async function fetchData() {
     try {
-        const response = await fetch('./Admin_count.php'); // Ensure path is correct
+        const response = await fetch('./Admin_count.php');
         const count = await response.json();
-        const total = count.signed + count.pending; // Use 'pending' instead of 'notSigned'
+        const total = count.signed + count.notSigned;
         const signedPercent = (count.signed / total) * 100;
-        const pendingPercent = (count.pending / total) * 100; // Update variable name
+        const notSignedPercent = (count.notSigned / total) * 100;
 
         const chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
             data: [{
-                type: "doughnut", // Use doughnut for the circular chart
+                type: "doughnut", // Change to doughnut for the circle in the middle
                 startAngle: 240,
-                innerRadius: "50%", // Adds a white circle in the middle
+                innerRadius: "50%", // Adds a small white circle in the middle
                 yValueFormatString: "##0.00\"%\"",
                 indexLabel: "{label} {y}",
                 dataPoints: [
                     { y: signedPercent, label: "Signed", color: "#800000" }, // Maroon
-                    { y: pendingPercent, label: "Pending", color: "#FFD700" } // Gold
+                    { y: notSignedPercent, label: "Not Signed", color: "#FFD700" } // Gold
                 ]
             }]
         });

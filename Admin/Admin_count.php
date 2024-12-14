@@ -22,7 +22,7 @@ foreach ($clearances as $clearance) {
     }
 }
 
-$signedCount = 2;
+$signedCount = 0;
 $pendingCount = 0;
 
 // Count signed and pending statuses
