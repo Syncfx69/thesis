@@ -8,8 +8,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Prepare the SQL statement to get the user
-    $statement = $pdo->prepare('SELECT * FROM user WHERE username = ? LIMIT 1');
+    // Prepare the SQL statement to get the user with case-sensitive comparison
+    $statement = $pdo->prepare('SELECT * FROM user WHERE BINARY username = ? LIMIT 1');
     $statement->execute([$username]);
     $user = $statement->fetch();
 
@@ -68,44 +68,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Main Form</title>
     <link rel="stylesheet" href="index.css">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navbar at the top with icon -->
+    <!-- Top Navbar -->
     <nav class="navbar">
         <img src="images/perpetualsmallicon.png" alt="Icon" class="navbar-icon">
     </nav>
-    <div class="bottom-navbar"></div>
 
+    <!-- Main Login Section -->
     <div class="login-container">
-        <div class="login wrap">
-            <!-- Perpetual Logo Header -->
+        <div class="login">
+            <!-- Logo Header -->
             <div class="logo-header">
                 <img src="images/perpetualicon.png" alt="University Logo">
             </div>
 
-            <!-- Add the form action to POST data to this same page -->
+            <!-- Login Form -->
             <form action="" method="POST">
-                <input
-                    placeholder="Username"
-                    id="username"
-                    name="username"
-                    type="text"
-                    required>
-                <input
-                    placeholder="Password"
-                    id="password"
-                    name="password"
-                    type="password"
-                    required>
-                <input value="Login" class="btn" type="submit">
+                <div class="input-wrapper">
+                    <i class="fas fa-user icon"></i>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Username" 
+                        required>
+                </div>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock icon"></i>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Password" 
+                        required>
+                </div>
+                <input 
+                    type="submit" 
+                    class="btn" 
+                    value="Login">
             </form>
 
-            <!-- Display error message if login fails -->
-            <?php if (isset($error)) { echo "<p style='color:red;'>$error</p>"; } ?>
+            <!-- Error Message -->
+            <?php if (isset($error)): ?>
+                <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+            <?php endif; ?>
         </div>
     </div>
 
     <!-- Bottom Navbar -->
-    <nav class="navbar bottom-navbar"></nav>
+    <nav class="bottom-navbar"></nav>
 </body>
 </html>

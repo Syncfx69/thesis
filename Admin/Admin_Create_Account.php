@@ -90,7 +90,7 @@ $directoryType = isset($_POST['directoryType']) ? $_POST['directoryType'] : 'use
 <body>
 <div class="sidebar">
     <!-- Add the logo -->
-    <img src="/MasterThesis/images/perpetualsmallicon.png" alt="Perpetual Logo" class="logo-image">
+    <img src="/images/perpetualsmallicon.png" alt="Perpetual Logo" class="logo-image">
     <ul>
         <li>
             <a href="Admin_dashboard.php" class="button">
