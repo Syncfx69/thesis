@@ -59,6 +59,12 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Clearance Students (Admin)</title>
     <link rel="stylesheet" href="ClearanceStudentsAdm.css">
 </head>
+<script>
+    // Confirmation dialog for logout
+    function confirmLogout() {
+        return confirm("Are you sure you want to log out?");
+    }
+</script>
 <body>
     <div class="sidebar">
         <h2 class="logo">Dashboard</h2>
@@ -68,7 +74,8 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="Create_Clearanceform.php" class="button">Create Clearance Form</a></li>
         </ul>
         <div class="sidebar-bottom">
-            <a href="../logout.php" class="button">Log Out</a>
+        <a href="logout.php" onclick="return confirmLogout();" class="button">
+        
             <p>Logged in as: <?php echo htmlspecialchars($_SESSION['user_email'] ?? 'Admin'); ?></p>
         </div>
     </div>
@@ -123,5 +130,6 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </table>
         </div>
     </div>
+
 </body>
 </html>

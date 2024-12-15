@@ -115,7 +115,7 @@ $clearance_periods = $statement->fetchAll(PDO::FETCH_ASSOC);
 <body>
 <div class="sidebar">
     <!-- Add the logo -->
-    <img src="/MasterThesis/images/perpetualsmallicon.png" alt="Perpetual Logo" class="logo-image">
+    <img src="/images/perpetualsmallicon.png" alt="Perpetual Logo" class="logo-image">
     <ul>
         <li>
             <a href="Admin_dashboard.php" class="button">
@@ -187,17 +187,18 @@ $clearance_periods = $statement->fetchAll(PDO::FETCH_ASSOC);
                 <label for="end_date">End Date</label>
                 <input type="date" id="end_date" name="end_date" required>
 
-                <!-- Clearance Form Type Dropdown -->
-                <label for="clearancetype">Clearance Form Type</label>
-                <select id="clearancetype" name="clearancetype" required>
-                    <option value="" disabled selected>Select Type</option>
-                    <option value="Graduating">Graduating</option>
-                    <option value="Non-Graduating">Non-Graduating</option>
-                </select>
+                <div class="clearance-form">
+    <form method="post" action="your-action-url.php">
+        <label for="clearancetype">Clearance Form Type</label>
+        <select id="clearancetype" name="clearancetype" required>
+            <option value="" disabled selected>Select Type</option>
+            <option value="Graduating">Graduating</option>
+            <option value="Non-Graduating">Non-Graduating</option>
+        </select>
+        <button type="submit" class="btn btn-add">Add Clearance Period</button>
+    </form>
+</div>
 
-                <button type="submit">Add Clearance Period</button>
-            </form>
-        </div>
 
         <div class="table-container">
             <h2>Clearance Record</h2>

@@ -115,6 +115,7 @@ if (!empty($conditions)) {
 $stmt = $pdo->prepare($filterQuery);
 $stmt->execute($parameters);
 $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -232,7 +233,7 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Year Level Dropdown -->
             <select name="year_level">
-                <option value="">Select Year Level</option>
+                <option value="">All Year Level</option>
                 <option value="1st Year" <?php echo isset($_GET['year_level']) && $_GET['year_level'] === '1st Year' ? 'selected' : ''; ?>>1st Year</option>
                 <option value="2nd Year" <?php echo isset($_GET['year_level']) && $_GET['year_level'] === '2nd Year' ? 'selected' : ''; ?>>2nd Year</option>
                 <option value="3rd Year" <?php echo isset($_GET['year_level']) && $_GET['year_level'] === '3rd Year' ? 'selected' : ''; ?>>3rd Year</option>
@@ -241,7 +242,7 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Course Dropdown -->
             <select name="course">
-    <option value="">Select Course</option>
+    <option value="">All Course</option>
     <option value="BACHELOR OF ELEMENTARY EDUCATION" <?php echo isset($_GET['course']) && $_GET['course'] === 'BACHELOR OF ELEMENTARY EDUCATION' ? 'selected' : ''; ?>>BACHELOR OF ELEMENTARY EDUCATION</option>
     <option value="BACHELOR OF ARTS" <?php echo isset($_GET['course']) && $_GET['course'] === 'BACHELOR OF ARTS' ? 'selected' : ''; ?>>BACHELOR OF ARTS</option>
     <option value="BACHELOR OF ARTS IN COMMUNICATION" <?php echo isset($_GET['course']) && $_GET['course'] === 'BACHELOR OF ARTS IN COMMUNICATION' ? 'selected' : ''; ?>>BACHELOR OF ARTS IN COMMUNICATION</option>

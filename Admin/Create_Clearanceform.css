@@ -104,7 +104,7 @@ body {
 }
 
 .main-content {
-    margin-left: 270px;
+    margin-left: 240px;
     padding: 40px;
     background-color: #fff;
     height: 100vh;
@@ -122,7 +122,7 @@ body {
 }
 
 .form-container input, .form-container select {
-    width: 100%;
+    width: 60%;
     padding: 10px;
     margin-top: 5px;
     border: 1px solid #ddd;
@@ -165,4 +165,41 @@ th {
 
 tr:nth-child(even) {
     background-color: #f9f9f9;
+}
+.clearance-form {
+    margin-top: 20px; /* Space from the previous content */
+    display: flex;
+    flex-direction: column; /* Stack the elements vertically */
+    gap: 10px; /* Space between dropdown, label, and button */
+    max-width: 300px; /* Restrict width for better layout */
+}
+
+.clearance-form label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333; /* Neutral text color */
+}
+
+.clearance-form select {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #333;
+}
+
+.clearance-form button {
+    background-color: #800000; /* Maroon button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.clearance-form button:hover {
+    background-color: #a01919; /* Slightly darker maroon on hover */
 }

@@ -16,14 +16,28 @@ $statement = $pdo->prepare('SELECT email FROM admin WHERE user_id = ?');
 $statement->execute([$user_id]);
 $email = $statement->fetchColumn();
 
-// Fetch counts for Pending and Cleared statuses
-$pendingCountQuery = $pdo->prepare("SELECT COUNT(*) AS pending_count FROM clearance WHERE status = 'Pending'");
-$pendingCountQuery->execute();
-$pendingCount = $pendingCountQuery->fetch(PDO::FETCH_ASSOC)['pending_count'];
+// Fetch existing CPIDs and their status counts along with the semester names
+$cpidData = [];
+$cpidQuery = $pdo->prepare("
+    SELECT 
+        cp.cpid, 
+        cp.semester, 
+        SUM(CASE WHEN c.status = 'Complete' THEN 1 ELSE 0 END) AS complete_count,
+        SUM(CASE WHEN c.status = 'Pending' THEN 1 ELSE 0 END) AS pending_count
+    FROM clearance_period cp
+    LEFT JOIN clearance c ON cp.cpid = c.cpid
+    GROUP BY cp.cpid, cp.semester
+");
+$cpidQuery->execute();
+$results = $cpidQuery->fetchAll(PDO::FETCH_ASSOC);
 
-$clearedCountQuery = $pdo->prepare("SELECT COUNT(*) AS cleared_count FROM clearance WHERE status = 'Cleared'");
-$clearedCountQuery->execute();
-$clearedCount = $clearedCountQuery->fetch(PDO::FETCH_ASSOC)['cleared_count'];
+foreach ($results as $row) {
+    $cpidData[$row['cpid']] = [
+        'semester' => $row['semester'],
+        'Complete' => $row['complete_count'],
+        'Pending' => $row['pending_count']
+    ];
+}
 
 // Get the selected directory type from the form (default to 'user')
 $directoryType = isset($_POST['directoryType']) ? $_POST['directoryType'] : 'user';
@@ -41,6 +55,7 @@ $statement = $pdo->prepare($sql);
 $statement->execute();
 $result = $statement->fetchAll();
 ?>
+
 
 
 <!DOCTYPE html>
@@ -142,9 +157,10 @@ $result = $statement->fetchAll();
     </ul>
     <!-- Sidebar bottom: Log Out and Logged in as -->
     <div class="sidebar-bottom">
-            <a href="../logout.php" class="button">
-            <i class="fas fa-sign-out-alt"></i> Log Out
-    </a>
+    <a href="../index.php" onclick="return confirmLogout();" class="button">
+    <i class="fas fa-sign-out-alt"></i> Log Out
+</a>
+
             <p>Logged in as: <?php echo htmlspecialchars($email); ?></p>
         </div>
     </div>
@@ -152,9 +168,9 @@ $result = $statement->fetchAll();
 
 
 <div class="main-content">
-    <div class="header">
-        <h1>Admin Dashboard</h1>
-    </div>
+<div class="card" style="font-weight: bold;">
+    Admin Dashboard
+</div>
 
     <!-- Dropdown for selecting the directory type -->
     <form method="POST" action="Admin_dashboard.php">
@@ -189,8 +205,12 @@ $result = $statement->fetchAll();
             ?>
         </h2>
 
-        <!-- Doughnut Chart -->
-        <div id="chartContainer" style="height: 370px; width: 100%; margin-bottom: 20px;"></div>
+        <div class="directory-section">
+    <h2>Clearance Status Overview</h2>
+    <div id="chartsContainer" style="display: flex; flex-wrap: wrap; gap: 20px;"></div>
+</div>
+
+
 
         <!-- User Table -->
         <table>
@@ -245,16 +265,31 @@ $result = $statement->fetchAll();
         </table>
     </div>
 </div>
-    <script src="./instascan.min.js"></script>\
-    <!-- Fetch and Render Chart -->
-    <script>
- const pendingCount = <?php echo $pendingCount; ?>;
-    const clearedCount = <?php echo $clearedCount; ?>;
 
-    const chart = new CanvasJS.Chart("chartContainer", {
+<script src="./instascan.min.js"></script>
+<!-- Fetch and Render Chart -->
+<script>
+const cpidData = <?php echo json_encode($cpidData); ?>; // Dynamically fetched data for each CPID
+
+// Dynamically create and render charts for each CPID
+Object.keys(cpidData).forEach((cpid, index) => {
+    // Create a container for the chart dynamically
+    const chartDiv = document.createElement('div');
+    chartDiv.id = `chartContainer${index}`;
+    chartDiv.style.height = '370px';
+    chartDiv.style.width = '30%';
+    chartDiv.style.minWidth = '300px';
+    chartDiv.style.margin = '10px';
+    document.getElementById('chartsContainer').appendChild(chartDiv);
+
+    // Get data for the current CPID
+    const data = cpidData[cpid];
+
+    // Render the chart
+    const chart = new CanvasJS.Chart(chartDiv.id, {
         animationEnabled: true,
         title: {
-            text: "Clearance Status Overview",
+            text: `${data.semester} Overview`, // Use semester name here dynamically
             fontSize: 20,
             fontColor: "#333",
         },
@@ -265,53 +300,59 @@ $result = $statement->fetchAll();
             yValueFormatString: "##0\"%\"",
             indexLabel: "{label}: {y}",
             dataPoints: [
-                { y: pendingCount, label: "Pending", color: "#800000" },
-                { y: clearedCount, label: "Cleared", color: "#FFD700" }
+                { y: data['Complete'], label: "Complete", color: "#800000" },
+                { y: data['Pending'], label: "Pending", color: "#FFD700" }
             ]
         }]
     });
 
     chart.render();
+});
 
-let lastScan = null
+// The following code remains unchanged
+let lastScan = null;
 
 function onScanSuccess(decodedText, decodedResult) {
-  // handle the scanned code as you, like, for example:
-    const data = JSON.parse(decodedText)
-    if (!data.user_id || !data.cpid) return
-    if (lastScan?.user_id == data.user_id && lastScan?.cpid == data.cpid) return
-    lastScan = data
-    // TODO: redirect to page
-    window.open(`./Admin_showresults.php?user_id=${data.user_id}&cpid=${data.cpid}`, '_blank')
+    // Handle the scanned code
+    const data = JSON.parse(decodedText);
+    if (!data.user_id || !data.cpid) return;
+    if (lastScan?.user_id == data.user_id && lastScan?.cpid == data.cpid) return;
+    lastScan = data;
+    // Redirect to page
+    window.open(`./Admin_showresults.php?user_id=${data.user_id}&cpid=${data.cpid}`, '_blank');
 }
 
 function onScanFailure(error) {
-
+    // Handle scan failure
 }
 
 let html5QrcodeScanner = new Html5QrcodeScanner(
-  "reader",
-  { fps: 10, qrbox: {width: 250, height: 250} },
-  /* verbose= */ false);
+    "reader",
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    false
+);
 
 function openQRModal() {
-        document.getElementById('qrScanModal').style.display = 'flex'; // Show modal
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-    }
+    document.getElementById('qrScanModal').style.display = 'flex'; // Show modal
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+}
 
-    function closeQRModal() {
-        document.getElementById('qrScanModal').style.display = 'none'; // Hide modal
-        html5QrcodeScanner.clear()
-        lastScan = null
-    }
+function closeQRModal() {
+    document.getElementById('qrScanModal').style.display = 'none'; // Hide modal
+    html5QrcodeScanner.clear();
+    lastScan = null;
+}
 
-    // Close modal when clicking outside of the modal content
-    window.onclick = function (event) {
-        const modal = document.getElementById('qrScanModal');
-        if (event.target === modal) {
-            closeQRModal();
-        }
-    };
-    </script>
-</body>
-</html>
+// Close modal when clicking outside of the modal content
+window.onclick = function(event) {
+    const modal = document.getElementById('qrScanModal');
+    if (event.target === modal) {
+        closeQRModal();
+    }
+};
+
+// Confirmation dialog for logout
+function confirmLogout() {
+    return confirm("Are you sure you want to log out?");
+}
+</script>

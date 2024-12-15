@@ -87,6 +87,19 @@ $directoryType = isset($_POST['directoryType']) ? $_POST['directoryType'] : 'use
         
     </style>
 </head>
+<script>
+    // Confirmation dialog for logout
+    function confirmLogout() {
+        return confirm("Are you sure you want to log out?");
+    }
+
+    function showFileName(event) {
+        const fileInput = event.target;
+        const fileName = fileInput.files[0] ? fileInput.files[0].name : "Drag & Drop your CSV file here or click to upload";
+        document.getElementById("fileName").textContent = fileName;
+    }
+
+</script>
 <body>
 <div class="sidebar">
     <!-- Add the logo -->
@@ -119,54 +132,61 @@ $directoryType = isset($_POST['directoryType']) ? $_POST['directoryType'] : 'use
         </li>
         
     </ul>
-    <!-- Sidebar bottom: Log Out and Logged in as -->
     <div class="sidebar-bottom">
-            <a href="../logout.php" class="button">
-            <i class="fas fa-sign-out-alt"></i> Log Out
-    </a>
-            <p>Logged in as: <?php echo htmlspecialchars($email); ?></p>
-        </div>
+        <a href="logout.php" onclick="return confirmLogout();" class="button"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        <p>Logged in as: <?php echo htmlspecialchars($email); ?></p>
     </div>
 </div>
+</div>
 
-    <!-- Registration Form -->
-    <div class="container" id="signup">
-        <h1 class="form-title">Create Account</h1>
-        <form method="post" action="register.php">
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" name="username" id="username" placeholder="Username" required>
-                <label for="username">Username</label>
-            </div>
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" name="password" id="password" placeholder="Password" required>
-                <label for="password">Password</label>
-            </div>
-            <!-- Role Dropdown -->
-            <div class="input-group">
-                <i class="fas fa-users"></i>
-                <select name="role" id="role" required>
-                    <option value="">Select Role</option>
-                    <option value="admin">Admin</option>
-                    <option value="student">Student</option>
-                </select>
-            </div>
-            <input type="submit" class="btn" value="Sign Up" name="signUp">
-        </form>
+<!-- Registration Form -->
+<div class="container" id="signup">
+    <h1 class="form-title">Create Account</h1>
+    <form method="post" action="register.php">
+        <!-- Username Field -->
+        <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text" name="username" placeholder="Username" required>
+        </div>
 
-        <form method="post" action="process_csv.php" enctype="multipart/form-data">
-            <div class="input-group">
-                <input type="file" name="csv" id="csv" placeholder="CSV" required>
-                <label for="csv">CSV</label>
-            </div>
-            <input type="submit" class="btn" value="Process CSV" name="submit">
-        </form>
+        <!-- Password Field -->
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" placeholder="Password" required>
+        </div>
 
-        <!-- Display error message if it exists -->
-        <?php if ($errorMessage): ?>
-            <div class="error-message" style="color: red; margin-top: 10px;"><?php echo $errorMessage; ?></div>
-        <?php endif; ?>
+        <!-- Role Dropdown -->
+        <div class="input-group">
+            <i class="fas fa-user-tag"></i>
+            <select name="role" id="role" required>
+                <option value="" disabled selected>Select Role</option>
+                <option value="admin">Admin</option>
+                <option value="signatory">Signatory</option>
+                <option value="student">Student</option>
+            </select>
+        </div>
+
+        <input type="submit" class="btn" value="Sign Up" name="signUp">
+    </form>
+
+<!-- Drag & Drop CSV Upload Box -->
+<form method="post" action="process_csv.php" enctype="multipart/form-data">
+    <div class="file-upload-container">
+        <div class="file-upload" id="fileUploadBox">
+            <input class="file-input" id="csv" type="file" name="csv" accept=".csv" required onchange="showFileName(event)">
+            <label class="file-label" for="csv">
+                <i class="upload-icon">📁</i>
+                <p id="fileName">Drag & Drop your CSV file here or click to upload</p>
+            </label>
+        </div>
     </div>
+    <input type="submit" class="btn" value="Process CSV" name="submit">
+</form>
+
+<!-- Display error message if it exists -->
+<?php if ($errorMessage): ?>
+    <div class="error-message" style="color: red; margin-top: 10px;"><?php echo $errorMessage; ?></div>
+<?php endif; ?>
+</div>
 </body>
 </html>

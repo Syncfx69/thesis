@@ -17,8 +17,15 @@ $student_stmt->execute([$user_id]);
 $student = $student_stmt->fetch();
 $student_id = $student['student_id'];
 
-// Fetch available clearance periods for selection
-$clearance_periods = $pdo->query('SELECT * FROM clearance_period WHERE startdate <= CURDATE()')->fetchAll(PDO::FETCH_ASSOC);
+// Fetch clearance periods where the student has a record in `clearance`
+$clearance_periods = $pdo->prepare('
+    SELECT cp.*
+    FROM clearance_period cp
+    JOIN clearance c ON cp.Cpid = c.Cpid
+    WHERE c.student_id = ?
+');
+$clearance_periods->execute([$student_id]);
+$clearance_periods = $clearance_periods->fetchAll(PDO::FETCH_ASSOC);
 
 // Get the selected `Cpid` (clearance period ID) from the GET request
 $selected_cpid = $_GET['Cpid'] ?? null;
@@ -52,6 +59,7 @@ $clearance_status = $all_signed ? 'Complete' : 'Pending';
 $update_clearance_stmt = $pdo->prepare('UPDATE clearance SET status = ? WHERE student_id = ? AND Cpid = ?');
 $update_clearance_stmt->execute([$clearance_status, $student_id, $selected_cpid]);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

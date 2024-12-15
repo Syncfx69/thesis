@@ -120,7 +120,7 @@ $pending_percentage = $total > 0 ? round(($clearance_data['pending_count'] / $to
 <body>
 <div class="sidebar">
     <!-- Add the logo -->
-    <img src="/MasterThesis/images/perpetualsmallicon.png" alt="Perpetual Logo" class="logo-image">
+    <img src="/images/perpetualsmallicon.png" alt="Perpetual Logo" class="logo-image">
     <ul>
         <li>
             <a href="Admin_dashboard.php" class="button">
