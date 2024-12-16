@@ -124,6 +124,7 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clearance Students</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="ClearanceStudents.css">
     <style>
         /* Button Styling */
@@ -213,10 +214,27 @@ $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="sidebar">
         <h2 class="logo">Signatory Dashboard</h2>
         <ul>
-            <li><a href="Signatory_Dashboard.php" class="button">Signatory Account</a></li>
-            <li><a href="Clearancedashboard.php" class="button">Clearance Dashboard</a></li>
-            <li><a href="Signatory_clearanceforms.php" class="button active">Clearance Forms</a></li>
-            <li><a href="../logout.php" class="button">Log Out</a></li>
+            
+            <li>
+                <a href="Signatory_Dashboard.php">
+                    <i class="fas fa-user"></i> Signatory Account
+                </a>
+            </li>
+            <li>
+                <a href="Clearancedashboard.php">
+                    <i class="fas fa-file-alt"></i> Clearance Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="Signatory_clearanceforms.php">
+                    <i class="fas fa-file-alt"></i> Clearance Forms
+                </a>
+            </li>
+            <li>
+                <a href="../logout.php">
+                    <i class="fas fa-sign-out-alt"></i> Log Out
+                </a>
+            </li>
         </ul>
     </div>
 

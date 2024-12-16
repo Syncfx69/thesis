@@ -38,10 +38,10 @@ function processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo, $f
     // If role is 'student', insert into the `students` table
     if ($role === 'student') {
         $studentInsertStmt = $pdo->prepare('
-            INSERT INTO students (user_id, StudNo, fname, mname, lname, email, course, year_level) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO students (user_id, username, StudNo, fname, mname, lname, email, course, year_level) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ');
-        $studentInsertStmt->execute([$userId, $studNo, $fname, $mname, $lname, $email, $course, $yearLevel]);
+        $studentInsertStmt->execute([$userId, $username, $studNo, $fname, $mname, $lname, $email, $course, $yearLevel]);
     }
 }
 
@@ -69,5 +69,8 @@ if (($handle = fopen($file, "r")) !== FALSE) {
 }
 
 unlink($file); // Delete the file after processing
-echo "CSV processed successfully.";
+
+// Redirect to Admin_Create_Account.php
+header('Location: Admin_Create_Account.php');
+exit;
 ?>
