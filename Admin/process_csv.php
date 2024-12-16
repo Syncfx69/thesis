@@ -2,12 +2,20 @@
 require_once '../Database/clearancedb.php';
 session_start();
 
-$file = $_FILES['csv']['tmp_name'];
-if (is_null($file)) {
-    die('No file uploaded.');
+// Check if a file is uploaded
+if (!isset($_FILES['csv']['tmp_name']) || $_FILES['csv']['error'] !== UPLOAD_ERR_OK) {
+    die('No file uploaded or file upload error.');
 }
 
-function processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo) {
+// Validate that the uploaded file is a CSV
+$file = $_FILES['csv']['tmp_name'];
+$fileType = mime_content_type($file);
+if ($fileType !== 'text/plain' && $fileType !== 'text/csv') {
+    die('Invalid file format. Please upload a valid CSV file.');
+}
+
+// Function to process user and student data
+function processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo, $fname, $mname, $lname, $email, $course, $yearLevel) {
     $password = password_hash($rawPassword, PASSWORD_BCRYPT);
 
     // Check if the username already exists using a prepared statement
@@ -27,26 +35,39 @@ function processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo) {
     // Get the last inserted user_id
     $userId = $pdo->lastInsertId();
 
-    // If role is 'Student', insert into the `students` table
-    if ($role === 'Student') {
-        $studentInsertStmt = $pdo->prepare('INSERT INTO students (user_id, StudNo) VALUES (?, ?)');
-        $studentInsertStmt->execute([$userId, $studNo]);
+    // If role is 'student', insert into the `students` table
+    if ($role === 'student') {
+        $studentInsertStmt = $pdo->prepare('
+            INSERT INTO students (user_id, StudNo, fname, mname, lname, email, course, year_level) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ');
+        $studentInsertStmt->execute([$userId, $studNo, $fname, $mname, $lname, $email, $course, $yearLevel]);
     }
 }
 
+// Open and process the CSV file
 if (($handle = fopen($file, "r")) !== FALSE) {
+    // Skip the first row if it contains headers
+    fgetcsv($handle);
+
     while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
         // Process each row of the CSV
         $username = $data[0];
         $rawPassword = $data[1];
         $role = $data[2];
-        $studNo = $data[3]; // The 4th cell is the StudNo
+        $studNo = $data[3] ?? null;
+        $fname = $data[4] ?? null;
+        $mname = $data[5] ?? null;
+        $lname = $data[6] ?? null;
+        $email = $data[7] ?? null;
+        $course = $data[8] ?? null;
+        $yearLevel = $data[9] ?? null;
 
-        processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo);
+        processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo, $fname, $mname, $lname, $email, $course, $yearLevel);
     }
     fclose($handle);
 }
 
-unlink($file);
+unlink($file); // Delete the file after processing
 echo "CSV processed successfully.";
 ?>
