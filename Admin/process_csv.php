@@ -4,32 +4,49 @@ session_start();
 
 $file = $_FILES['csv']['tmp_name'];
 if (is_null($file)) {
-    die('test');
+    die('No file uploaded.');
 }
 
-function processUser($pdo, $username, $rawPassword, $role) {
-    $password = password_hash($rawPassword, PASSWORD_BCRYPT); // ALWAYS FUCKING HASH THE PASSWORD!!!!!!!!
-    // $admin_type = isset($_POST['admin_type']) ? $_POST['admin_type'] : ''; // Capture the admin type (if applicable)
+function processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo) {
+    $password = password_hash($rawPassword, PASSWORD_BCRYPT);
 
     // Check if the username already exists using a prepared statement
     $statement = $pdo->prepare('SELECT * FROM user WHERE username = ?');
     $statement->execute([$username]);
     $user = $statement->fetch();
+
     if ($user) {
+        // If the user exists, we can update or ignore this entry
         return;
     }
 
-    // Directly insert the plain text password (without hashing) THIS IS FUCKING STUPID
+    // Insert into the `user` table
+    $userInsertStmt = $pdo->prepare('INSERT INTO user (username, password, role) VALUES (?, ?, ?)');
+    $userInsertStmt->execute([$username, $password, $role]);
 
-    $statement = $pdo->prepare('INSERT INTO user (username, password, role) VALUES (?, ?, ?)');
-    $statement->execute([$username, $password, $role]);
+    // Get the last inserted user_id
+    $userId = $pdo->lastInsertId();
+
+    // If role is 'Student', insert into the `students` table
+    if ($role === 'Student') {
+        $studentInsertStmt = $pdo->prepare('INSERT INTO students (user_id, StudNo) VALUES (?, ?)');
+        $studentInsertStmt->execute([$userId, $studNo]);
+    }
 }
 
 if (($handle = fopen($file, "r")) !== FALSE) {
-  while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-    processUser($pdo, $data[0], $data[1], $data[2]);
-  }
-  fclose($handle);
+    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        // Process each row of the CSV
+        $username = $data[0];
+        $rawPassword = $data[1];
+        $role = $data[2];
+        $studNo = $data[3]; // The 4th cell is the StudNo
+
+        processUserAndStudent($pdo, $username, $rawPassword, $role, $studNo);
+    }
+    fclose($handle);
 }
 
 unlink($file);
+echo "CSV processed successfully.";
+?>

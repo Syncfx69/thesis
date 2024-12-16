@@ -133,9 +133,15 @@ $directoryType = isset($_POST['directoryType']) ? $_POST['directoryType'] : 'use
         
     </ul>
     <div class="sidebar-bottom">
-        <a href="logout.php" onclick="return confirmLogout();" class="button"><i class="fas fa-sign-out-alt"></i> Log Out</a>
-        <p>Logged in as: <?php echo htmlspecialchars($email); ?></p>
+    <a href="../index.php" onclick="return confirmLogout();" class="button">
+    <i class="fas fa-sign-out-alt"></i> Log Out
+        </a>
+
+            <p>Logged in as: <?php echo htmlspecialchars($email); ?></p>
+        </div>
     </div>
+    </div>
+
 </div>
 </div>
 

@@ -70,15 +70,29 @@ foreach ($my_clearances as $clearance) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Clearance Form</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="students_clearanceform.css">
 </head>
 <body>
     <div class="sidebar">
-        <h2 class="logo">Student Dashboard</h2>
+    <h3 class="logo">Student Dashboard</h3>
         <ul>
-            <li><a href="students_dashboard.php" class="button">Account Profile</a></li>
-            <li><a href="students_clearanceform.php" class="button">Clearance Form</a></li>
-            <li><a href="../logout.php" class="button">Log Out</a></li>
+            <li>
+                <a href="students_dashboard.php">
+                    <i class="fas fa-user"></i> Account Profile
+                </a>
+            </li>
+            <li>
+                <a href="students_clearanceform.php">
+                    <i class="fas fa-file-alt"></i> Clearance Form
+                </a>
+            </li>
+            <li>
+                <a href="../logout.php">
+                    <i class="fas fa-sign-out-alt"></i> Log Out
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -152,3 +166,4 @@ foreach ($my_clearances as $clearance) {
     </div>
 </body>
 </html>
+

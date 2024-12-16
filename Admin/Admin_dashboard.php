@@ -4,40 +4,67 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    // If the user is not logged in, redirect them to the login page
     header("Location: ../index.php");
     exit();
 }
 
-// Fetch the logged-in user_id from session
+// Fetch the logged-in user_id and role from session
 $user_id = $_SESSION['user_id'];
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-$statement = $pdo->prepare('SELECT email FROM admin WHERE user_id = ?');
-$statement->execute([$user_id]);
-$email = $statement->fetchColumn();
+// Initialize email
+$email = null;
 
-// Fetch existing CPIDs and their status counts along with the semester names
-$cpidData = [];
-$cpidQuery = $pdo->prepare("
-    SELECT 
-        cp.cpid, 
-        cp.semester, 
-        SUM(CASE WHEN c.status = 'Complete' THEN 1 ELSE 0 END) AS complete_count,
-        SUM(CASE WHEN c.status = 'Pending' THEN 1 ELSE 0 END) AS pending_count
-    FROM clearance_period cp
-    LEFT JOIN clearance c ON cp.cpid = c.cpid
-    GROUP BY cp.cpid, cp.semester
-");
-$cpidQuery->execute();
-$results = $cpidQuery->fetchAll(PDO::FETCH_ASSOC);
+// Determine the role and fetch the email
+try {
+    if ($role === 'admin') {
+        $statement = $pdo->prepare('SELECT email FROM admin WHERE user_id = ?');
+        $statement->execute([$user_id]);
+        $email = $statement->fetchColumn();
+    } 
+    
 
-foreach ($results as $row) {
-    $cpidData[$row['cpid']] = [
-        'semester' => $row['semester'],
-        'Complete' => $row['complete_count'],
-        'Pending' => $row['pending_count']
-    ];
+    // Debugging log if no email found
+    if (!$email) {
+        error_log("Email not found for user_id: $user_id with role: $role");
+        $email = "Email not available";
+    }
+} catch (PDOException $e) {
+    // Log database errors
+    error_log("Database error: " . $e->getMessage());
+    $email = "Error fetching email";
 }
+
+// Fetch existing CPIDs and their status counts along with semester names
+$cpidData = [];
+try {
+    $cpidQuery = $pdo->prepare("
+        SELECT 
+            cp.cpid, 
+            cp.semester, 
+            SUM(CASE WHEN c.status = 'Complete' THEN 1 ELSE 0 END) AS complete_count,
+            SUM(CASE WHEN c.status = 'Pending' THEN 1 ELSE 0 END) AS pending_count
+        FROM clearance_period cp
+        LEFT JOIN clearance c ON cp.cpid = c.cpid
+        GROUP BY cp.cpid, cp.semester
+    ");
+    $cpidQuery->execute();
+    $results = $cpidQuery->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($results as $row) {
+        $cpidData[$row['cpid']] = [
+            'semester' => $row['semester'],
+            'Complete' => $row['complete_count'],
+            'Pending' => $row['pending_count']
+        ];
+    }
+} catch (PDOException $e) {
+    error_log("Database error: " . $e->getMessage());
+}
+
+// Set session data
+$_SESSION['user_id'] = $user_id;
+$_SESSION['role'] = $role;
 
 // Get the selected directory type from the form (default to 'user')
 $directoryType = isset($_POST['directoryType']) ? $_POST['directoryType'] : 'user';
@@ -57,7 +84,6 @@ $result = $statement->fetchAll();
 ?>
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,7 +95,7 @@ $result = $statement->fetchAll();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
-        /* Ensure the sidebar stretches vertically */
+       
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -156,15 +182,16 @@ $result = $statement->fetchAll();
         
     </ul>
     <!-- Sidebar bottom: Log Out and Logged in as -->
+
     <div class="sidebar-bottom">
     <a href="../index.php" onclick="return confirmLogout();" class="button">
     <i class="fas fa-sign-out-alt"></i> Log Out
-</a>
+        </a>
+        <p>Logged in as: <?= htmlspecialchars($email); ?></p>
 
-            <p>Logged in as: <?php echo htmlspecialchars($email); ?></p>
         </div>
     </div>
-</div>
+    </div>
 
 
 <div class="main-content">
